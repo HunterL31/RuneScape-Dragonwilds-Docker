@@ -2,3 +2,4 @@ unraid-template
 README.md
 docker-compose.yml
 .git
+ca_profile.xml

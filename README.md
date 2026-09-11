@@ -14,6 +14,7 @@ crash restart. Includes a Community-Applications-style template.
 | `unraid-template/my-dragonwilds.xml` | Unraid Docker template (all settings exposed in the UI) |
 | `docker-compose.yml` | For local build/test or the Unraid Compose Manager plugin |
 | `.github/workflows/docker-publish.yml` | Builds and pushes the image to Docker Hub |
+| `ca_profile.xml` | Maintainer profile shown by Community Applications |
 
 ## Requirements
 
@@ -43,8 +44,8 @@ Then **Docker → Add Container** and pick **Dragonwilds** from the **Template**
 
 Unraid 6.x also had a **Template repositories** box at the bottom of the Docker tab where
 you could paste this repo's GitHub URL instead. Unraid 7 removed it; the only remaining
-in-UI way to add third-party templates is Community Applications, which this container
-is not listed in.
+in-UI way to add third-party templates is Community Applications (see
+[Community Applications](#community-applications) below for the listing status).
 
 **No template at all:** click **Add Container** with the Template dropdown empty, set
 **Repository** to `hunterl31/dragonwilds-server:latest`, then add a UDP port mapping for
@@ -92,6 +93,37 @@ Then edit the container in the Unraid UI and change **Repository** to
 `dragonwilds-server:latest`. To publish your own build, fork this repo and add
 `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets; the included GitHub Actions
 workflow pushes to `<username>/dragonwilds-server` on every push to `main`.
+
+## Community Applications
+
+This repo is laid out as a CA template repository: the template lives in
+`unraid-template/`, the icon is served from this repo, and `ca_profile.xml` at the root
+supplies the maintainer profile. Once it is accepted, the container appears in the
+Unraid **Apps** tab and the manual template copy above becomes unnecessary.
+
+Submitting it, roughly in the order CA's maintainers expect:
+
+1. **Open a support thread** in the Unraid forum under *Docker Containers*
+   (https://forums.unraid.net/forum/47-docker-containers/). CA requires a support
+   link; a forum thread is the convention, but the template currently points at this
+   repo's GitHub Issues, which is also accepted. If you create a thread, put its URL in
+   `<Support>` in the template.
+2. **Read the current policies** in the pinned thread *Community Applications -
+   Application Policies / Notes*
+   (https://forums.unraid.net/topic/87144-ca-application-policies-notes/). It lists
+   what CA checks: a public image, no unnecessary privileged mode, an icon, a support
+   link, a unique name, and a working template.
+3. **Send the repository URL** (`https://github.com/HunterL31/RuneScape-Dragonwilds-Docker`)
+   to the CA maintainer (Squid) by forum private message, as that thread describes.
+   Mention the support link and that the template is under `unraid-template/`.
+4. After it is added, CA rescans the repo roughly every couple of hours. Edit the
+   template in place to publish changes; add a dated entry to `<Changes>` so the
+   changelog shows in the Apps tab.
+
+Things already done here to meet the policies: `Privileged` is false, the image is
+public on Docker Hub, `<Icon>`, `<Support>`, `<Project>`, `<Overview>`, `<Category>`,
+`<ExtraSearchTerms>`, `<ReadMe>` and `<Changes>` are set, and no other app in the CA
+feed uses the name **Dragonwilds**.
 
 ## Environment variables
 

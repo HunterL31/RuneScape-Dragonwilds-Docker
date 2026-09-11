@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#23242b"/>
+      <stop offset="1" stop-color="#0f1013"/>
+    </linearGradient>
+    <radialGradient id="ember" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#ffb347"/>
+      <stop offset="0.55" stop-color="#e2531e"/>
+      <stop offset="1" stop-color="#7a1f10"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7c26b"/>
+      <stop offset="1" stop-color="#a5511d"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="176" fill="url(#ember)"/>
+  <circle cx="256" cy="256" r="176" fill="none" stroke="url(#ring)" stroke-width="14"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#2a0d07" stroke-opacity="0.35" stroke-width="6"/>
+  <text x="256" y="300" text-anchor="middle" font-family="DejaVu Serif, Georgia, serif" font-weight="bold" font-size="150" fill="#fff4e0" stroke="#3a1208" stroke-width="6" paint-order="stroke">DW</text>
+</svg>

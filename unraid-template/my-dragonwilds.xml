@@ -7,19 +7,26 @@
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://dragonwilds.runescape.com/news/how-to-dedicated-servers</Support>
+  <Support>https://github.com/HunterL31/RuneScape-Dragonwilds-Docker/issues</Support>
   <Project>https://dragonwilds.runescape.com/</Project>
   <Overview>RuneScape: Dragonwilds dedicated server (official Steam AppID 4019830, installed via SteamCMD). Auto-updates on start, hourly save backups, graceful shutdown and crash restart. Set OWNER_ID (your in-game Player ID from Settings) and ADMIN_PASSWORD, forward the UDP port on your router, then search for your exact world name under Worlds > Public in-game. RAM: 2 GB + 1 GB per player (8 GB for 6). First start downloads ~10 GB.</Overview>
   <Category>GameServers:</Category>
   <WebUI/>
   <TemplateURL>https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/my-dragonwilds.xml</TemplateURL>
-  <Icon/>
+  <Icon>https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/dragonwilds-icon.png</Icon>
   <ExtraParams>--stop-timeout 90</ExtraParams>
   <PostArgs/>
   <CPUset/>
   <DonateText/>
   <DonateLink/>
   <Requires/>
+  <ReadMe>https://github.com/HunterL31/RuneScape-Dragonwilds-Docker#readme</ReadMe>
+  <ExtraSearchTerms>runescape dragonwilds jagex dedicated server steamcmd game server</ExtraSearchTerms>
+  <Beta>False</Beta>
+  <Changes>
+### 2026-09-11
+- Initial release: SteamCMD install/auto-update, PUID/PGID, scheduled save backups, graceful shutdown, crash restart.
+  </Changes>
 
   <Config Name="Game Port (UDP)" Target="7777" Default="7777" Mode="udp" Description="Must match the PORT variable below. Forward this UDP port on your router to your Unraid IP." Type="Port" Display="always" Required="true" Mask="false">7777</Config>
   <Config Name="Server Data" Target="/data" Default="/mnt/user/appdata/dragonwilds" Mode="rw" Description="Game files, saves, config and backups. Put the appdata share on cache/SSD for best performance." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/dragonwilds</Config>
