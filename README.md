@@ -31,21 +31,26 @@ image the first time you click Apply.
 
 ### 1. Add the template
 
-**Option A — template repository (recommended, gets template updates):**
-
-1. Open the **Docker** tab and scroll to the bottom to **Template repositories**.
-2. Add `https://github.com/HunterL31/RuneScape-Dragonwilds-Docker` on its own line and click **Save**.
-3. Click **Add Container** and pick **Dragonwilds** from the **Template** dropdown.
-
-**Option B — copy the file to the flash drive:**
+Copy the template to the flash drive from the Unraid terminal (Tools → Terminal, or SSH):
 
 ```bash
-# from the Unraid terminal
 wget -O /boot/config/plugins/dockerMan/templates-user/my-dragonwilds.xml \
   https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/my-dragonwilds.xml
 ```
 
-Then **Docker → Add Container → Template dropdown → Dragonwilds**.
+Then **Docker → Add Container** and pick **Dragonwilds** from the **Template** dropdown
+(under *User templates*).
+
+Unraid 6.x also had a **Template repositories** box at the bottom of the Docker tab where
+you could paste this repo's GitHub URL instead. Unraid 7 removed it; the only remaining
+in-UI way to add third-party templates is Community Applications, which this container
+is not listed in.
+
+**No template at all:** click **Add Container** with the Template dropdown empty, set
+**Repository** to `hunterl31/dragonwilds-server:latest`, then add a UDP port mapping for
+`7777`, a path from `/mnt/user/appdata/dragonwilds` to `/data`, the variables `OWNER_ID`
+and `ADMIN_PASSWORD`, and `--stop-timeout 90` under Extra Parameters. Every other setting
+has a default baked into the image.
 
 ### 2. Configure and apply
 
