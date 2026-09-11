@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>Dragonwilds</Name>
-  <Repository>MY_DOCKERHUB_USER/dragonwilds-server:latest</Repository>
-  <Registry>https://hub.docker.com/r/MY_DOCKERHUB_USER/dragonwilds-server</Registry>
+  <Repository>hunterl31/dragonwilds-server:latest</Repository>
+  <Registry>https://hub.docker.com/r/hunterl31/dragonwilds-server</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
