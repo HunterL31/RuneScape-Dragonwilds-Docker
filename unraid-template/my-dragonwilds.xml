@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>Dragonwilds</Name>
-  <!-- Change this to wherever you push the image (e.g. yourname/dragonwilds-server:latest) -->
-  <Repository>dragonwilds-server:latest</Repository>
-  <Registry/>
+  <Repository>MY_DOCKERHUB_USER/dragonwilds-server:latest</Repository>
+  <Registry>https://hub.docker.com/r/MY_DOCKERHUB_USER/dragonwilds-server</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
