@@ -13,6 +13,7 @@ crash restart. Includes a Community-Applications-style template.
 | `entrypoint.sh` | Permissions, update, config generation, backups, signal handling |
 | `unraid-template/my-dragonwilds.xml` | Unraid Docker template (all settings exposed in the UI) |
 | `docker-compose.yml` | For local build/test or the Unraid Compose Manager plugin |
+| `.github/workflows/docker-publish.yml` | Builds and pushes the image to Docker Hub |
 
 ## Requirements
 
@@ -23,29 +24,35 @@ crash restart. Includes a Community-Applications-style template.
 
 ## Install on Unraid
 
-### 1. Get the image onto the server
+The image is published to Docker Hub as
+[`hunterl31/dragonwilds-server`](https://hub.docker.com/r/hunterl31/dragonwilds-server)
+and the template already points at it, so there is nothing to build. Unraid pulls the
+image the first time you click Apply.
 
-**Option A — build on Unraid** (no registry needed):
+### 1. Add the template
+
+**Option A — template repository (recommended, gets template updates):**
+
+1. Open the **Docker** tab and scroll to the bottom to **Template repositories**.
+2. Add `https://github.com/HunterL31/RuneScape-Dragonwilds-Docker` on its own line and click **Save**.
+3. Click **Add Container** and pick **Dragonwilds** from the **Template** dropdown.
+
+**Option B — copy the file to the flash drive:**
 
 ```bash
 # from the Unraid terminal
-mkdir -p /mnt/user/appdata/dragonwilds-build && cd /mnt/user/appdata/dragonwilds-build
-# copy Dockerfile + entrypoint.sh here, then:
-docker build -t dragonwilds-server:latest .
+wget -O /boot/config/plugins/dockerMan/templates-user/my-dragonwilds.xml \
+  https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/my-dragonwilds.xml
 ```
 
-**Option B — push to Docker Hub / GHCR** from any machine, then set `<Repository>`
-in the template to `yourname/dragonwilds-server:latest`.
+Then **Docker → Add Container → Template dropdown → Dragonwilds**.
 
-### 2. Install the template
+### 2. Configure and apply
 
-```bash
-cp unraid-template/my-dragonwilds.xml /boot/config/plugins/dockerMan/templates-user/
-```
-
-Then in the Unraid UI: **Docker → Add Container → Template dropdown → Dragonwilds**.
 Fill in **Owner ID** and **Admin Password** (required), set your **Server Name** and
-**Default World Name**, and click Apply.
+**Default World Name**, and click **Apply**. Unraid pulls
+`hunterl31/dragonwilds-server:latest` and starts the container. The advanced settings
+(backups, auto-restart, PUID/PGID, timezone) are under **Show more settings**.
 
 ### 3. Forward the port
 
@@ -55,9 +62,31 @@ internal and external ports must match or players get bounced back to the title 
 
 ### 4. First start
 
-The first start downloads ~10 GB via SteamCMD; watch the container log. Once you see the
+The first start downloads ~10 GB of game files via SteamCMD; watch the container log. Once you see the
 server listening, open the game → **Worlds → Public** and search for your **exact world
 name** (case sensitive). The container's health check turns green once the server process is up.
+
+### Updating the container image
+
+When a new image is pushed to Docker Hub, the Unraid Docker tab shows **update ready**
+next to the container. Click it to pull the new image. This is separate from game
+updates, which SteamCMD applies on every container start (see below).
+
+### Building the image yourself (optional)
+
+If you would rather not pull from Docker Hub:
+
+```bash
+# from the Unraid terminal
+mkdir -p /mnt/user/appdata/dragonwilds-build && cd /mnt/user/appdata/dragonwilds-build
+# copy Dockerfile + entrypoint.sh here, then:
+docker build -t dragonwilds-server:latest .
+```
+
+Then edit the container in the Unraid UI and change **Repository** to
+`dragonwilds-server:latest`. To publish your own build, fork this repo and add
+`DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets; the included GitHub Actions
+workflow pushes to `<username>/dragonwilds-server` on every push to `main`.
 
 ## Environment variables
 

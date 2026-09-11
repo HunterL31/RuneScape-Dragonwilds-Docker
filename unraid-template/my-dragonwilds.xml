@@ -12,7 +12,7 @@
   <Overview>RuneScape: Dragonwilds dedicated server (official Steam AppID 4019830, installed via SteamCMD). Auto-updates on start, hourly save backups, graceful shutdown and crash restart. Set OWNER_ID (your in-game Player ID from Settings) and ADMIN_PASSWORD, forward the UDP port on your router, then search for your exact world name under Worlds > Public in-game. RAM: 2 GB + 1 GB per player (8 GB for 6). First start downloads ~10 GB.</Overview>
   <Category>GameServers:</Category>
   <WebUI/>
-  <TemplateURL/>
+  <TemplateURL>https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/my-dragonwilds.xml</TemplateURL>
   <Icon/>
   <ExtraParams>--stop-timeout 90</ExtraParams>
   <PostArgs/>
