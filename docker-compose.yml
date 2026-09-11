@@ -1,0 +1,27 @@
+# For building/testing outside Unraid, or via the Unraid "Compose Manager" plugin.
+services:
+  dragonwilds:
+    build: .
+    image: dragonwilds-server:latest
+    container_name: dragonwilds
+    restart: unless-stopped
+    stop_grace_period: 90s
+    ports:
+      - "7777:7777/udp"
+    environment:
+      PUID: 99
+      PGID: 100
+      TZ: UTC
+      OWNER_ID: ""            # REQUIRED – your in-game Player ID
+      ADMIN_PASSWORD: ""      # REQUIRED
+      SERVER_NAME: "Dragonwilds Server"
+      DEFAULT_WORLD_NAME: "MyWorld"
+      WORLD_PASSWORD: ""
+      PORT: 7777              # must match the port mapping above
+      MAX_PLAYERS: 6
+      UPDATE_ON_START: "true"
+      AUTO_RESTART: "true"
+      BACKUP_INTERVAL: 60
+      BACKUP_KEEP: 24
+    volumes:
+      - /mnt/user/appdata/dragonwilds:/data

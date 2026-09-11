@@ -1,0 +1,120 @@
+# RuneScape: Dragonwilds Dedicated Server — Docker for Unraid
+
+Runs the official free **RuneScape: Dragonwilds - Dedicated Servers** Steam product
+(AppID `4019830`) in a container tuned for Unraid: `nobody:users` ownership by default,
+appdata volume, graceful shutdown, hourly save backups, auto-update on start and
+crash restart. Includes a Community-Applications-style template.
+
+## What's inside
+
+| File | Purpose |
+|---|---|
+| `Dockerfile` | Ubuntu 24.04 + SteamCMD + gosu |
+| `entrypoint.sh` | Permissions, update, config generation, backups, signal handling |
+| `unraid-template/my-dragonwilds.xml` | Unraid Docker template (all settings exposed in the UI) |
+| `docker-compose.yml` | For local build/test or the Unraid Compose Manager plugin |
+
+## Requirements
+
+- x86-64 Unraid box with **2 GB + 1 GB per player** RAM free (8 GB for a full 6-player server)
+- ~10 GB disk for game files, ideally on the cache/SSD pool
+- **UDP 7777** forwarded from your router to the Unraid IP
+- Your **Player ID** (bottom of the in-game Settings menu, use the copy button)
+
+## Install on Unraid
+
+### 1. Get the image onto the server
+
+**Option A — build on Unraid** (no registry needed):
+
+```bash
+# from the Unraid terminal
+mkdir -p /mnt/user/appdata/dragonwilds-build && cd /mnt/user/appdata/dragonwilds-build
+# copy Dockerfile + entrypoint.sh here, then:
+docker build -t dragonwilds-server:latest .
+```
+
+**Option B — push to Docker Hub / GHCR** from any machine, then set `<Repository>`
+in the template to `yourname/dragonwilds-server:latest`.
+
+### 2. Install the template
+
+```bash
+cp unraid-template/my-dragonwilds.xml /boot/config/plugins/dockerMan/templates-user/
+```
+
+Then in the Unraid UI: **Docker → Add Container → Template dropdown → Dragonwilds**.
+Fill in **Owner ID** and **Admin Password** (required), set your **Server Name** and
+**Default World Name**, and click Apply.
+
+### 3. Forward the port
+
+Forward **UDP 7777** on every router between your Unraid box and the internet.
+If you change the host port, change the `PORT` variable to the same number —
+internal and external ports must match or players get bounced back to the title screen.
+
+### 4. First start
+
+The first start downloads ~10 GB via SteamCMD; watch the container log. Once you see the
+server listening, open the game → **Worlds → Public** and search for your **exact world
+name** (case sensitive). The container's health check turns green once the server process is up.
+
+## Environment variables
+
+| Variable | Default | Notes |
+|---|---|---|
+| `OWNER_ID` | — | **Required.** Your Player ID. Server refuses to start without it. |
+| `ADMIN_PASSWORD` | — | **Required.** Grants in-game Server Management access. |
+| `SERVER_NAME` | `Dragonwilds Server` | |
+| `DEFAULT_WORLD_NAME` | `MyWorld` | World created on first start; also what players search for. |
+| `WORLD_PASSWORD` | empty | Join password. Overrides any password stored in the world save. |
+| `PORT` | `7777` | UDP listen port. Keep equal to the host port mapping. |
+| `MAX_PLAYERS` | `6` | Official cap is 6. |
+| `UPDATE_ON_START` | `true` | Run SteamCMD every start. Restart the container after game patches. |
+| `VALIDATE_ON_START` | `false` | Full file verification (slow). Use to repair an install. |
+| `AUTO_RESTART` | `true` | Relaunch the server if it crashes. |
+| `BACKUP_INTERVAL` | `60` | Minutes between `SaveGames` backups. `0` disables. |
+| `BACKUP_KEEP` | `24` | Number of archives kept in `/data/backups`. |
+| `BACKUP_ON_STOP` | `true` | Back up when the container stops. |
+| `STOP_TIMEOUT` | `60` | Seconds allowed for a clean shutdown. Keep below Docker's `--stop-timeout`. |
+| `EXTRA_ARGS` | empty | Extra args appended to the server command line. |
+| `PUID` / `PGID` | `99` / `100` | Unraid `nobody:users`. |
+| `TZ` | `UTC` | |
+
+## Volume layout (`/data`)
+
+```
+/data/server/                                       game install (SteamCMD)
+/data/server/RSDragonwilds/Saved/SaveGames/         world .sav files
+/data/server/RSDragonwilds/Saved/Config/LinuxServer/DedicatedServer.ini
+/data/server/RSDragonwilds/Saved/Logs/RSDragonwilds.log
+/data/backups/saves-YYYYMMDD-HHMMSS.tar.gz          automatic backups
+```
+
+`DedicatedServer.ini` is regenerated from the environment variables on every start
+(the game-assigned `ServerGuid` is preserved). Change settings in the Unraid UI, not
+by editing the file — the game discards edits made while it is running anyway.
+
+## Moving an existing world onto the server
+
+1. Stop the container.
+2. Empty `/data/server/RSDragonwilds/Saved/SaveGames/` (a backup was taken on stop).
+3. Copy your local `.sav` from
+   `C:\Users\<you>\AppData\Local\RSDragonwilds\Saved\SaveGames\` into that folder.
+4. Set `DEFAULT_WORLD_NAME` to that world's name and start the container.
+
+The server loads the newest `.sav` it finds; it only creates a fresh default world when the folder is empty.
+
+## Updating after a game patch
+
+Restart the container. With `UPDATE_ON_START=true` SteamCMD fetches the new build
+before launch. If clients can't see the server after a patch, compare the version at the top of
+`RSDragonwilds.log` with the one in the game's top-left corner.
+
+## Troubleshooting
+
+- **Server not in the Public list** — port forwarding, version mismatch, or `OWNER_ID`/`ADMIN_PASSWORD` unset. Check the container log first.
+- **Visible but not joinable** — UDP port not reaching the container, or host/`PORT` mismatch.
+- **Permission errors** — set `PUID`/`PGID` to match the owner of the appdata folder, or `chown -R 99:100 /mnt/user/appdata/dragonwilds`.
+- **SteamCMD "login anonymous" failures** — usually transient; the entrypoint retries 3 times, then restart the container.
+- **Slow saves / stutter** — make sure the appdata share is cache-only (SSD), not on the array.

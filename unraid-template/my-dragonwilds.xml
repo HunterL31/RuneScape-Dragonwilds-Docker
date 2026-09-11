@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Dragonwilds</Name>
+  <!-- Change this to wherever you push the image (e.g. yourname/dragonwilds-server:latest) -->
+  <Repository>dragonwilds-server:latest</Repository>
+  <Registry/>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://dragonwilds.runescape.com/news/how-to-dedicated-servers</Support>
+  <Project>https://dragonwilds.runescape.com/</Project>
+  <Overview>RuneScape: Dragonwilds dedicated server (official Steam AppID 4019830, installed via SteamCMD). Auto-updates on start, hourly save backups, graceful shutdown and crash restart. Set OWNER_ID (your in-game Player ID from Settings) and ADMIN_PASSWORD, forward the UDP port on your router, then search for your exact world name under Worlds > Public in-game. RAM: 2 GB + 1 GB per player (8 GB for 6). First start downloads ~10 GB.</Overview>
+  <Category>GameServers:</Category>
+  <WebUI/>
+  <TemplateURL/>
+  <Icon/>
+  <ExtraParams>--stop-timeout 90</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+
+  <Config Name="Game Port (UDP)" Target="7777" Default="7777" Mode="udp" Description="Must match the PORT variable below. Forward this UDP port on your router to your Unraid IP." Type="Port" Display="always" Required="true" Mask="false">7777</Config>
+  <Config Name="Server Data" Target="/data" Default="/mnt/user/appdata/dragonwilds" Mode="rw" Description="Game files, saves, config and backups. Put the appdata share on cache/SSD for best performance." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/dragonwilds</Config>
+
+  <Config Name="Owner ID" Target="OWNER_ID" Default="" Mode="" Description="REQUIRED. Your RuneScape: Dragonwilds Player ID (bottom of the in-game Settings menu, use the copy button)." Type="Variable" Display="always" Required="true" Mask="false"></Config>
+  <Config Name="Admin Password" Target="ADMIN_PASSWORD" Default="" Mode="" Description="REQUIRED. Anyone who enters this in the in-game Server Management screen becomes an admin." Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="Server Name" Target="SERVER_NAME" Default="Dragonwilds Server" Mode="" Description="Display name of the server." Type="Variable" Display="always" Required="false" Mask="false">Dragonwilds Server</Config>
+  <Config Name="Default World Name" Target="DEFAULT_WORLD_NAME" Default="MyWorld" Mode="" Description="Name of the world created on first start. Players find the server by searching this EXACT name (case sensitive) under Worlds > Public." Type="Variable" Display="always" Required="false" Mask="false">MyWorld</Config>
+  <Config Name="World Password" Target="WORLD_PASSWORD" Default="" Mode="" Description="Optional join password. Leave blank for an open server." Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  <Config Name="Server Port" Target="PORT" Default="7777" Mode="" Description="UDP port the server listens on. Must equal the host port mapped above." Type="Variable" Display="always" Required="false" Mask="false">7777</Config>
+  <Config Name="Max Players" Target="MAX_PLAYERS" Default="6" Mode="" Description="Official maximum is 6." Type="Variable" Display="advanced" Required="false" Mask="false">6</Config>
+
+  <Config Name="Update On Start" Target="UPDATE_ON_START" Default="true" Mode="" Description="Run SteamCMD on every container start. Restart the container after a game patch to update." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Validate On Start" Target="VALIDATE_ON_START" Default="false" Mode="" Description="Verify all game files with SteamCMD on start (slow, use to repair a broken install)." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  <Config Name="Auto Restart" Target="AUTO_RESTART" Default="true" Mode="" Description="Restart the server process automatically if it crashes." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Backup Interval (min)" Target="BACKUP_INTERVAL" Default="60" Mode="" Description="Minutes between save backups. 0 disables." Type="Variable" Display="advanced" Required="false" Mask="false">60</Config>
+  <Config Name="Backups To Keep" Target="BACKUP_KEEP" Default="24" Mode="" Description="How many backup archives to retain in /data/backups." Type="Variable" Display="advanced" Required="false" Mask="false">24</Config>
+  <Config Name="Backup On Stop" Target="BACKUP_ON_STOP" Default="true" Mode="" Description="Take a backup when the container stops." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Stop Timeout (s)" Target="STOP_TIMEOUT" Default="60" Mode="" Description="Seconds to wait for a clean save on shutdown before force-killing. Keep below the --stop-timeout in Extra Parameters." Type="Variable" Display="advanced" Required="false" Mask="false">60</Config>
+  <Config Name="Extra Launch Args" Target="EXTRA_ARGS" Default="" Mode="" Description="Additional command-line arguments passed to the server binary." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User ID for file ownership (99 = nobody on Unraid)." Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group ID for file ownership (100 = users on Unraid)." Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+  <Config Name="Timezone" Target="TZ" Default="UTC" Mode="" Description="e.g. America/New_York — used for log and backup timestamps." Type="Variable" Display="advanced" Required="false" Mask="false">UTC</Config>
+</Container>
