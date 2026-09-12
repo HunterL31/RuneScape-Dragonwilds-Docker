@@ -182,5 +182,6 @@ before launch. If clients can't see the server after a patch, compare the versio
 - **Server not in the Public list** — port forwarding, version mismatch, or `OWNER_ID`/`ADMIN_PASSWORD` unset. Check the container log first.
 - **Visible but not joinable** — UDP port not reaching the container, or host/`PORT` mismatch.
 - **Permission errors** — set `PUID`/`PGID` to match the owner of the appdata folder, or `chown -R 99:100 /mnt/user/appdata/dragonwilds`.
+- **"Multiple instances of the game detected" then a crash in `InitializeSentry()`** — the server cannot write to `Saved/` (look for `Permission denied` on `Saved/Crashes` just before the crash). Images built before 2026-09-12 created that folder as root. Update the container, or run `chown -R 99:100 /mnt/user/appdata/dragonwilds/server/RSDragonwilds/Saved` and restart.
 - **SteamCMD "login anonymous" failures** — usually transient; the entrypoint retries 3 times, then restart the container.
 - **Slow saves / stutter** — make sure the appdata share is cache-only (SSD), not on the array.

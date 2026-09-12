@@ -66,7 +66,12 @@ update_server() {
 
 # ---------------------------------------------------------------- config
 write_config() {
+  # The game keeps its instance lock, logs, crash dumps and save games under
+  # Saved/. If any of that tree is root-owned the server cannot create its
+  # lock file and aborts with "Multiple instances of the game detected".
+  # The tree is small, so a recursive chown on every start is cheap.
   mkdir -p "$CONFIG_DIR"
+  chown -R "$PUID:$PGID" "$SAVED_DIR"
 
   # Preserve the server's identity across restarts if the game has written one.
   local guid=""

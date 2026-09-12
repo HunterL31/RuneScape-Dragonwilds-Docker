@@ -24,6 +24,9 @@
   <ExtraSearchTerms>runescape dragonwilds jagex dedicated server steamcmd game server</ExtraSearchTerms>
   <Beta>False</Beta>
   <Changes>
+### 2026-09-12
+- Fix: Saved/ was created root-owned, so the server aborted with "Multiple instances of the game detected" and crashed in InitializeSentry().
+
 ### 2026-09-11
 - Initial release: SteamCMD install/auto-update, PUID/PGID, scheduled save backups, graceful shutdown, crash restart.
   </Changes>
