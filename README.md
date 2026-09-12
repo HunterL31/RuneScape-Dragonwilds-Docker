@@ -39,7 +39,7 @@ wget -O /boot/config/plugins/dockerMan/templates-user/my-dragonwilds.xml \
   https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/my-dragonwilds.xml
 ```
 
-Then **Docker → Add Container** and pick **Dragonwilds** from the **Template** dropdown
+Then **Docker → Add Container** and pick **RuneScape-Dragonwilds** from the **Template** dropdown
 (under *User templates*).
 
 Unraid 6.x also had a **Template repositories** box at the bottom of the Docker tab where
@@ -123,7 +123,7 @@ Submitting it, roughly in the order CA's maintainers expect:
 Things already done here to meet the policies: `Privileged` is false, the image is
 public on Docker Hub, `<Icon>`, `<Support>`, `<Project>`, `<Overview>`, `<Category>`,
 `<ExtraSearchTerms>`, `<ReadMe>` and `<Changes>` are set, and no other app in the CA
-feed uses the name **Dragonwilds**.
+feed uses the name **RuneScape-Dragonwilds**.
 
 ## Playing over Tailscale (no port forwarding)
 
@@ -134,7 +134,7 @@ IP without any router changes.
    disabled and set **Tailscale Serve** to *No* (Serve only proxies TCP; the game is UDP).
    Apply. Make sure the container has no variable named `PORT`; the template uses
    `SERVER_PORT` for exactly this reason.
-2. Get the node's address: `docker exec Dragonwilds tailscale ip -4`.
+2. Get the node's address: `docker exec RuneScape-Dragonwilds tailscale ip -4`.
 3. In the Tailscale admin console, share the machine with each friend. They accept it
    with their own free account and run the Tailscale client on their gaming PC.
 4. Friends open the server browser, pick **Direct**, and enter the 100.x address with
@@ -200,7 +200,7 @@ before launch. If clients can't see the server after a patch, compare the versio
 - **Server not in the Public list** — port forwarding, version mismatch, or `OWNER_ID`/`ADMIN_PASSWORD` unset. Check the container log first.
 - **Visible but not joinable** — UDP port not reaching the container, or host/`SERVER_PORT` mismatch.
 - **Permission errors** — set `PUID`/`PGID` to match the owner of the appdata folder, or `chown -R 99:100 /mnt/user/appdata/dragonwilds`.
-- **Direct connect over Tailscale fails and the server log shows nothing** — run `docker exec Dragonwilds cat /proc/net/udp` and look at the line for `1E61` (7777 in hex). If the uid column is `0`, Tailscale's daemon owns the port and the game moved to the next one. Images before 2026-09-12 set a `PORT` variable, which tailscaled adopts as its own port. Update the container and replace `PORT` with `SERVER_PORT`.
+- **Direct connect over Tailscale fails and the server log shows nothing** — run `docker exec RuneScape-Dragonwilds cat /proc/net/udp` and look at the line for `1E61` (7777 in hex). If the uid column is `0`, Tailscale's daemon owns the port and the game moved to the next one. Images before 2026-09-12 set a `PORT` variable, which tailscaled adopts as its own port. Update the container and replace `PORT` with `SERVER_PORT`.
 - **"Multiple instances of the game detected" then a crash in `InitializeSentry()`** — the server cannot write to `Saved/` (look for `Permission denied` on `Saved/Crashes` just before the crash). Images built before 2026-09-12 created that folder as root. Update the container, or run `chown -R 99:100 /mnt/user/appdata/dragonwilds/server/RSDragonwilds/Saved` and restart.
 - **SteamCMD "login anonymous" failures** — usually transient; the entrypoint retries 3 times, then restart the container.
 - **Slow saves / stutter** — make sure the appdata share is cache-only (SSD), not on the array.

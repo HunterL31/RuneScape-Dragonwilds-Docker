@@ -2,7 +2,7 @@
 <Maintainer>
   <Icon>https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/dragonwilds-icon.png</Icon>
   <Profile>
-    Unraid template and Docker image for the official RuneScape: Dragonwilds dedicated server. Source, issues and template updates live at https://github.com/HunterL31/RuneScape-Dragonwilds-Docker.
+    Container for hosting the RuneScape: Dragonwilds dedicated server on Unraid. Source, issues and template updates live at https://github.com/HunterL31/RuneScape-Dragonwilds-Docker.
   </Profile>
   <DonateLink/>
   <DonateText/>

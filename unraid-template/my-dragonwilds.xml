@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Container version="2">
-  <Name>Dragonwilds</Name>
+  <Name>RuneScape-Dragonwilds</Name>
   <Repository>hunterl31/dragonwilds-server:latest</Repository>
   <Registry>https://hub.docker.com/r/hunterl31/dragonwilds-server</Registry>
   <Network>bridge</Network>
@@ -9,7 +9,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/HunterL31/RuneScape-Dragonwilds-Docker/issues</Support>
   <Project>https://dragonwilds.runescape.com/</Project>
-  <Overview>RuneScape: Dragonwilds dedicated server (official Steam AppID 4019830, installed via SteamCMD). Auto-updates on start, hourly save backups, graceful shutdown and crash restart. Set OWNER_ID (your in-game Player ID from Settings) and ADMIN_PASSWORD, forward the UDP port on your router, then search for your exact world name under Worlds > Public in-game. RAM: 2 GB + 1 GB per player (8 GB for 6). First start downloads ~10 GB.</Overview>
+  <Overview>Container for hosting the RuneScape: Dragonwilds dedicated server. Installs the official Steam build via SteamCMD, updates it on start, backs up saves, and restarts on crash. Set OWNER_ID (your in-game Player ID) and ADMIN_PASSWORD, then players join by world name under Worlds &gt; Public or by IP in the Direct tab.</Overview>
   <Category>GameServers:</Category>
   <WebUI/>
   <TemplateURL>https://raw.githubusercontent.com/HunterL31/RuneScape-Dragonwilds-Docker/main/unraid-template/my-dragonwilds.xml</TemplateURL>
@@ -25,6 +25,7 @@
   <Beta>False</Beta>
   <Changes>
 ### 2026-09-12
+- Renamed the container to RuneScape-Dragonwilds and shortened the description.
 - Breaking: the PORT variable is renamed SERVER_PORT. Tailscale's daemon treats PORT as its own listen port, so with Unraid's Tailscale integration enabled it took UDP 7777 and the game silently moved to 7778. Existing containers: edit, remove PORT, add SERVER_PORT.
 - The server now refuses to start with a clear message if its UDP port is already bound inside the container.
 - Fix: Saved/ was created root-owned, so the server aborted with "Multiple instances of the game detected" and crashed in InitializeSentry().
