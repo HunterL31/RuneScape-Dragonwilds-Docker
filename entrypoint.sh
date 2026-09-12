@@ -126,15 +126,33 @@ backup_loop() {
 }
 
 # ---------------------------------------------------------------- server control
+# Returns 0 if something inside the container already has UDP $1 bound.
+udp_port_in_use() {
+  local hex
+  hex=$(printf '%04X' "$1")
+  grep -qiE "^ *[0-9]+: [0-9A-F]+:${hex} " /proc/net/udp /proc/net/udp6 2>/dev/null
+}
+
+check_port_free() {
+  udp_port_in_use "$SERVER_PORT" || return 0
+  log "ERROR: UDP port ${SERVER_PORT} is already bound inside the container, so the game cannot use it."
+  if [ -n "${PORT:-}" ]; then
+    log "ERROR: A PORT variable is set (PORT=${PORT}). Tailscale's daemon reads PORT as its own listen port,"
+    log "ERROR: so with Unraid's Tailscale integration enabled it grabs the game port first."
+    log "ERROR: Remove the PORT variable from the container and use SERVER_PORT instead."
+  fi
+  die "game port ${SERVER_PORT}/udp unavailable"
+}
+
 start_server() {
-  local args=(-log "-Port=${PORT}")
+  local args=(-log "-Port=${SERVER_PORT}")
   if [ -n "${MAX_PLAYERS}" ]; then
     args+=("-ini:Game:[/Script/Engine.GameSession]:MaxPlayers=${MAX_PLAYERS}")
   fi
   # shellcheck disable=SC2206
   [ -n "${EXTRA_ARGS}" ] && args+=(${EXTRA_ARGS})
 
-  log "Starting server: name='${SERVER_NAME}' world='${DEFAULT_WORLD_NAME}' port=${PORT}/udp"
+  log "Starting server: name='${SERVER_NAME}' world='${DEFAULT_WORLD_NAME}' port=${SERVER_PORT}/udp"
   cd "$SERVER_DIR" || die "cannot cd to $SERVER_DIR"
   gosu steam "$SERVER_EXEC" "${args[@]}" &
   SERVER_PID=$!
@@ -173,6 +191,15 @@ log "TZ=${TZ}"
 [ -n "${OWNER_ID}" ]       || die "OWNER_ID is required. Find your Player ID at the bottom of the in-game Settings menu."
 [ -n "${ADMIN_PASSWORD}" ] || die "ADMIN_PASSWORD is required."
 
+# PORT was the original name of this setting. It is honoured for old container
+# configs, but it collides with Tailscale (tailscaled uses PORT as its own
+# listen port), so SERVER_PORT is the supported name.
+if [ -z "${SERVER_PORT:-}" ] && [ -n "${PORT:-}" ]; then
+  log "WARNING: PORT is deprecated and conflicts with Tailscale; rename it to SERVER_PORT"
+  SERVER_PORT="$PORT"
+fi
+SERVER_PORT="${SERVER_PORT:-7777}"
+
 setup_user
 
 if [ "${UPDATE_ON_START,,}" = "true" ] || [ ! -x "$SERVER_EXEC" ]; then
@@ -197,6 +224,7 @@ fi
 
 # Main run loop with optional crash restart
 while true; do
+  check_port_free
   start_server
   wait "$SERVER_PID"
   code=$?

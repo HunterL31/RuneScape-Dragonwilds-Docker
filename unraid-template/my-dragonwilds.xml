@@ -25,13 +25,15 @@
   <Beta>False</Beta>
   <Changes>
 ### 2026-09-12
+- Breaking: the PORT variable is renamed SERVER_PORT. Tailscale's daemon treats PORT as its own listen port, so with Unraid's Tailscale integration enabled it took UDP 7777 and the game silently moved to 7778. Existing containers: edit, remove PORT, add SERVER_PORT.
+- The server now refuses to start with a clear message if its UDP port is already bound inside the container.
 - Fix: Saved/ was created root-owned, so the server aborted with "Multiple instances of the game detected" and crashed in InitializeSentry().
 
 ### 2026-09-11
 - Initial release: SteamCMD install/auto-update, PUID/PGID, scheduled save backups, graceful shutdown, crash restart.
   </Changes>
 
-  <Config Name="Game Port (UDP)" Target="7777" Default="7777" Mode="udp" Description="Must match the PORT variable below. Forward this UDP port on your router to your Unraid IP." Type="Port" Display="always" Required="true" Mask="false">7777</Config>
+  <Config Name="Game Port (UDP)" Target="7777" Default="7777" Mode="udp" Description="Must match the SERVER_PORT variable below. Forward this UDP port on your router to your Unraid IP." Type="Port" Display="always" Required="true" Mask="false">7777</Config>
   <Config Name="Server Data" Target="/data" Default="/mnt/user/appdata/dragonwilds" Mode="rw" Description="Game files, saves, config and backups. Put the appdata share on cache/SSD for best performance." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/dragonwilds</Config>
 
   <Config Name="Owner ID" Target="OWNER_ID" Default="" Mode="" Description="REQUIRED. Your RuneScape: Dragonwilds Player ID (bottom of the in-game Settings menu, use the copy button)." Type="Variable" Display="always" Required="true" Mask="false"></Config>
@@ -39,7 +41,7 @@
   <Config Name="Server Name" Target="SERVER_NAME" Default="Dragonwilds Server" Mode="" Description="Display name of the server." Type="Variable" Display="always" Required="false" Mask="false">Dragonwilds Server</Config>
   <Config Name="Default World Name" Target="DEFAULT_WORLD_NAME" Default="MyWorld" Mode="" Description="Name of the world created on first start. Players find the server by searching this EXACT name (case sensitive) under Worlds > Public." Type="Variable" Display="always" Required="false" Mask="false">MyWorld</Config>
   <Config Name="World Password" Target="WORLD_PASSWORD" Default="" Mode="" Description="Optional join password. Leave blank for an open server." Type="Variable" Display="always" Required="false" Mask="true"></Config>
-  <Config Name="Server Port" Target="PORT" Default="7777" Mode="" Description="UDP port the server listens on. Must equal the host port mapped above." Type="Variable" Display="always" Required="false" Mask="false">7777</Config>
+  <Config Name="Server Port" Target="SERVER_PORT" Default="7777" Mode="" Description="UDP port the server listens on. Must equal the host port mapped above. Do not add a variable named PORT: Tailscale uses that name for its own listen port." Type="Variable" Display="always" Required="false" Mask="false">7777</Config>
   <Config Name="Max Players" Target="MAX_PLAYERS" Default="6" Mode="" Description="Official maximum is 6." Type="Variable" Display="advanced" Required="false" Mask="false">6</Config>
 
   <Config Name="Update On Start" Target="UPDATE_ON_START" Default="true" Mode="" Description="Run SteamCMD on every container start. Restart the container after a game patch to update." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>

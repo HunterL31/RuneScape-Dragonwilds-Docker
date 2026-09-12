@@ -63,7 +63,7 @@ Fill in **Owner ID** and **Admin Password** (required), set your **Server Name**
 ### 3. Forward the port
 
 Forward **UDP 7777** on every router between your Unraid box and the internet.
-If you change the host port, change the `PORT` variable to the same number —
+If you change the host port, change the `SERVER_PORT` variable to the same number —
 internal and external ports must match or players get bounced back to the title screen.
 
 ### 4. First start
@@ -125,6 +125,24 @@ public on Docker Hub, `<Icon>`, `<Support>`, `<Project>`, `<Overview>`, `<Catego
 `<ExtraSearchTerms>`, `<ReadMe>` and `<Changes>` are set, and no other app in the CA
 feed uses the name **Dragonwilds**.
 
+## Playing over Tailscale (no port forwarding)
+
+The game's server browser has a **Direct** tab, so friends on your tailnet can join by
+IP without any router changes.
+
+1. Edit the container, turn **Use Tailscale** on, leave **Userspace Networking**
+   disabled and set **Tailscale Serve** to *No* (Serve only proxies TCP; the game is UDP).
+   Apply. Make sure the container has no variable named `PORT`; the template uses
+   `SERVER_PORT` for exactly this reason.
+2. Get the node's address: `docker exec Dragonwilds tailscale ip -4`.
+3. In the Tailscale admin console, share the machine with each friend. They accept it
+   with their own free account and run the Tailscale client on their gaming PC.
+4. Friends open the server browser, pick **Direct**, and enter the 100.x address with
+   port 7777 (or whatever `SERVER_PORT` is), plus the world password if set.
+
+The world still registers in the public list with your home address, which nobody can
+reach, so set `WORLD_PASSWORD` as the real gate.
+
 ## Environment variables
 
 | Variable | Default | Notes |
@@ -134,7 +152,7 @@ feed uses the name **Dragonwilds**.
 | `SERVER_NAME` | `Dragonwilds Server` | |
 | `DEFAULT_WORLD_NAME` | `MyWorld` | World created on first start; also what players search for. |
 | `WORLD_PASSWORD` | empty | Join password. Overrides any password stored in the world save. |
-| `PORT` | `7777` | UDP listen port. Keep equal to the host port mapping. |
+| `SERVER_PORT` | `7777` | UDP listen port. Keep equal to the host port mapping. Do **not** add a variable named `PORT`; Tailscale's daemon reads that as its own listen port. |
 | `MAX_PLAYERS` | `6` | Official cap is 6. |
 | `UPDATE_ON_START` | `true` | Run SteamCMD every start. Restart the container after game patches. |
 | `VALIDATE_ON_START` | `false` | Full file verification (slow). Use to repair an install. |
@@ -180,8 +198,9 @@ before launch. If clients can't see the server after a patch, compare the versio
 ## Troubleshooting
 
 - **Server not in the Public list** — port forwarding, version mismatch, or `OWNER_ID`/`ADMIN_PASSWORD` unset. Check the container log first.
-- **Visible but not joinable** — UDP port not reaching the container, or host/`PORT` mismatch.
+- **Visible but not joinable** — UDP port not reaching the container, or host/`SERVER_PORT` mismatch.
 - **Permission errors** — set `PUID`/`PGID` to match the owner of the appdata folder, or `chown -R 99:100 /mnt/user/appdata/dragonwilds`.
+- **Direct connect over Tailscale fails and the server log shows nothing** — run `docker exec Dragonwilds cat /proc/net/udp` and look at the line for `1E61` (7777 in hex). If the uid column is `0`, Tailscale's daemon owns the port and the game moved to the next one. Images before 2026-09-12 set a `PORT` variable, which tailscaled adopts as its own port. Update the container and replace `PORT` with `SERVER_PORT`.
 - **"Multiple instances of the game detected" then a crash in `InitializeSentry()`** — the server cannot write to `Saved/` (look for `Permission denied` on `Saved/Crashes` just before the crash). Images built before 2026-09-12 created that folder as root. Update the container, or run `chown -R 99:100 /mnt/user/appdata/dragonwilds/server/RSDragonwilds/Saved` and restart.
 - **SteamCMD "login anonymous" failures** — usually transient; the entrypoint retries 3 times, then restart the container.
 - **Slow saves / stutter** — make sure the appdata share is cache-only (SSD), not on the array.
