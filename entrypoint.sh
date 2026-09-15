@@ -57,11 +57,39 @@ update_server() {
       log "SteamCMD finished successfully"
       return 0
     fi
-    log "SteamCMD failed (attempt $attempt/3), retrying in 10s"
+    # An identical retry cannot clear a stuck install state: SteamCMD reports
+    # "state is 0x6 after update job" and moves zero bytes every time. Adding
+    # validation re-checksums the install and pulls what the stale manifest
+    # was hiding, so escalate to it for the remaining attempts.
+    if [ -z "$validate" ]; then
+      log "SteamCMD failed (attempt $attempt/3); retrying with validation in 10s"
+      validate="validate"
+    else
+      log "SteamCMD failed (attempt $attempt/3), retrying in 10s"
+    fi
     sleep 10
   done
   log "WARNING: SteamCMD failed 3 times; continuing with existing files if present"
   return 1
+}
+
+# Steam records install state in the app manifest. Bit 0x2 means an update is
+# still required, i.e. the files on disk are an older build than the live one.
+# Clients on the patched build cannot join such a server, so say so plainly
+# rather than letting it look healthy.
+warn_if_update_pending() {
+  local manifest="$SERVER_DIR/steamapps/appmanifest_${APP_ID}.acf"
+  [ -f "$manifest" ] || return 0
+
+  local flags
+  flags=$(sed -n 's/.*"StateFlags"[^"]*"\([0-9]*\)".*/\1/p' "$manifest" | head -1)
+  [ -n "$flags" ] || return 0
+
+  if [ $(( flags & 2 )) -ne 0 ]; then
+    log "WARNING: Steam still reports an update as required (StateFlags=${flags})."
+    log "WARNING: This server is running an older build; patched clients cannot join."
+    log "WARNING: Set VALIDATE_ON_START=true and restart the container to repair it."
+  fi
 }
 
 # ---------------------------------------------------------------- config
@@ -203,7 +231,7 @@ SERVER_PORT="${SERVER_PORT:-7777}"
 setup_user
 
 if [ "${UPDATE_ON_START,,}" = "true" ] || [ ! -x "$SERVER_EXEC" ]; then
-  update_server
+  update_server || warn_if_update_pending
 else
   log "UPDATE_ON_START=false, skipping SteamCMD"
 fi

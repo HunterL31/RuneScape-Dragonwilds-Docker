@@ -19,7 +19,7 @@ crash restart. Includes a Community-Applications-style template.
 ## Requirements
 
 - x86-64 Unraid box with **2 GB + 1 GB per player** RAM free (8 GB for a full 6-player server)
-- ~10 GB disk for game files, ideally on the cache/SSD pool
+- ~10 GB disk for game files and backups, ideally on the cache/SSD pool (the install itself is around 5 GB)
 - **UDP 7777** forwarded from your router to the Unraid IP
 - Your **Player ID** (bottom of the in-game Settings menu, use the copy button)
 
@@ -68,7 +68,7 @@ internal and external ports must match or players get bounced back to the title 
 
 ### 4. First start
 
-The first start downloads ~10 GB of game files via SteamCMD; watch the container log. Once you see the
+The first start downloads roughly 5 GB of game files via SteamCMD; watch the container log. Once you see the
 server listening, open the game → **Worlds → Public** and search for your **exact world
 name** (case sensitive). The container's health check turns green once the server process is up.
 
@@ -203,4 +203,5 @@ before launch. If clients can't see the server after a patch, compare the versio
 - **Direct connect over Tailscale fails and the server log shows nothing** — run `docker exec RuneScape-Dragonwilds cat /proc/net/udp` and look at the line for `1E61` (7777 in hex). If the uid column is `0`, Tailscale's daemon owns the port and the game moved to the next one. Images before 2026-09-12 set a `PORT` variable, which tailscaled adopts as its own port. Update the container and replace `PORT` with `SERVER_PORT`.
 - **"Multiple instances of the game detected" then a crash in `InitializeSentry()`** — the server cannot write to `Saved/` (look for `Permission denied` on `Saved/Crashes` just before the crash). Images built before 2026-09-12 created that folder as root. Update the container, or run `chown -R 99:100 /mnt/user/appdata/dragonwilds/server/RSDragonwilds/Saved` and restart.
 - **SteamCMD "login anonymous" failures** — usually transient; the entrypoint retries 3 times, then restart the container.
+- **SteamCMD says `state is 0x6 after update job`, usually right after a game patch** — Steam has the install marked as needing an update but downloads nothing. Set `VALIDATE_ON_START=true` (under *Show more settings* in the Unraid UI) and restart; validation re-checksums the install and pulls the new build. Set it back to `false` afterwards. The entrypoint now adds validation to its own retries, so this should self-heal. If it persists, check free disk space, then stop the container and delete `/mnt/user/appdata/dragonwilds/server/steamapps/appmanifest_4019830.acf` before restarting.
 - **Slow saves / stutter** — make sure the appdata share is cache-only (SSD), not on the array.

@@ -24,6 +24,10 @@
   <ExtraSearchTerms>runescape dragonwilds jagex dedicated server steamcmd game server</ExtraSearchTerms>
   <Beta>False</Beta>
   <Changes>
+### 2026-09-15
+- SteamCMD retries now escalate to a validating update, which clears the "state is 0x6 after update job" failure seen after game patches.
+- The container warns on start when Steam still reports an update as required, instead of quietly running an old build that patched clients cannot join.
+
 ### 2026-09-12
 - Renamed the container to RuneScape-Dragonwilds and shortened the description.
 - Breaking: the PORT variable is renamed SERVER_PORT. Tailscale's daemon treats PORT as its own listen port, so with Unraid's Tailscale integration enabled it took UDP 7777 and the game silently moved to 7778. Existing containers: edit, remove PORT, add SERVER_PORT.
